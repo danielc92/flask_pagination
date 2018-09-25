@@ -1,56 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>flask-bootstrap example</title>
     <!-- Bootstrap -->
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
-  </head>
-  <body>
-    <div class = "bg-primary">
-    <div class = "container jumbotron jumbotron-fluid bg-transparent text-white">
-      <h1 class = "display-4">Pagination Example</h1>
+</head>
 
+<body>
+    <nav class="navbar navbar-light bg-light justify-content-between">
+        <a class="navbar-brand">Navbar</a>
+        <form class="form-inline" method = "post">
+            <input class = "search-input mx-3" type="text" name="search" placeholder = "Search" value="{{
+              request.form.search }}">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+    </nav>
+    <div class="bg-primary">
+        <div class="container jumbotron jumbotron-fluid bg-transparent text-white">
+            <h1 class="display-4">Pagination Example</h1>
+        </div>
     </div>
-  </div>
     <div class="container">
-      <div class = "text-dark">{{ pagination.links }}</div>
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Order Date</th>
-              <th>Profit</th>
-              <th>Unit Price</th>
-              <th>Order Quantity</th>
-              <th>Customer Name</th>
-              <th>Region</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in data %}
-            <tr>
-              <td>{{ item['Order ID'] }}</td>
-              <td>{{ item['Order Date'] }}</td>
-              {%if item['Profit'] > 0%}
-                <td><span class ="badge badge-success">{{ item['Profit'] }}</span></td>
-              {%else%}
-                <td><span class ="badge badge-danger">{{ item['Profit'] }}</span></td>
-              {%endif%}
-              
-              <td>{{ item['Unit Price'] }}</td>
-              <td>{{ item['Order Quantity'] }}</td>
-              <td>{{ item['Customer Name'] }}</td>
-              <td>{{ item['Region'] }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {{ pagination.links }}
+        <div class="table-responsive">
+            <table class="table table-hover my-4">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Order Date</th>
+                        <th>Profit</th>
+                        <th>Unit Price</th>
+                        <th>Order Quantity</th>
+                        <th>Customer Name</th>
+                        <th>Region</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in data %}
+                    <tr>
+                        <td>{{ item['Order ID'] }}</td>
+                        <td>{{ item['Order Date'] }}</td>
+                        {%if item['Profit'] > 0%}
+                        <td><span class="badge badge-success">{{ item['Profit'] }}</span></td>
+                        {%else%}
+                        <td><span class="badge badge-danger">{{ item['Profit'] }}</span></td>
+                        {%endif%}
+                        <td>{{ item['Unit Price'] }}</td>
+                        <td>{{ item['Order Quantity'] }}</td>
+                        <td>{{ item['Customer Name'] }}</td>
+                        <td>{{ item['Region'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {{ pagination.info }} {{ pagination.links }}
     </div>
-  </body>
+</body>
+
 </html>
