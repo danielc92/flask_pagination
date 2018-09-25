@@ -7,8 +7,6 @@ app.debug = True
 
 data = pandas.read_csv('static/superstore.csv')
 data_dict = data.to_dict(orient = 'records')
-print(data.shape)
-print(data_dict)
 
 def get_users(offset=0, per_page=20):
     return data_dict[offset: offset + per_page]
@@ -17,7 +15,6 @@ def get_users(offset=0, per_page=20):
 def index():
 
     page, per_page, offset = get_page_args(page_parameter='page', per_page_parameter='per_page')
-    print(page, per_page, offset)
     total = len(data_dict)
     pagination_users = get_users(offset=offset, per_page=per_page)
     pagination = Pagination(page=page, per_page=per_page, total=total,
