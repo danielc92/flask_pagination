@@ -9,22 +9,42 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
   </head>
   <body>
-    <div class = "jumbotron">Pagination Example</div>
+    <div class = "bg-primary">
+    <div class = "container jumbotron jumbotron-fluid bg-transparent text-white">
+      <h1 class = "display-4">Pagination Example</h1>
+
+    </div>
+  </div>
     <div class="container">
-      {{ pagination.links }}
+      <div class = "text-dark">{{ pagination.links }}</div>
       <div class="table-responsive">
         <table class="table table-hover">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Value</th>
+              <th>Order ID</th>
+              <th>Order Date</th>
+              <th>Profit</th>
+              <th>Unit Price</th>
+              <th>Order Quantity</th>
+              <th>Customer Name</th>
+              <th>Region</th>
             </tr>
           </thead>
           <tbody>
-            {% for user in users %}
+            {% for item in data %}
             <tr>
-              <td>{{ loop.index + (page - 1) * per_page }}</td>
-              <td>{{ user }}</td>
+              <td>{{ item['Order ID'] }}</td>
+              <td>{{ item['Order Date'] }}</td>
+              {%if item['Profit'] > 0%}
+                <td><span class ="badge badge-success">{{ item['Profit'] }}</span></td>
+              {%else%}
+                <td><span class ="badge badge-danger">{{ item['Profit'] }}</span></td>
+              {%endif%}
+              
+              <td>{{ item['Unit Price'] }}</td>
+              <td>{{ item['Order Quantity'] }}</td>
+              <td>{{ item['Customer Name'] }}</td>
+              <td>{{ item['Region'] }}</td>
             </tr>
             {% endfor %}
           </tbody>
