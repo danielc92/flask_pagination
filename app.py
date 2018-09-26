@@ -1,16 +1,16 @@
+#imports
 from flask import Flask, render_template, redirect, url_for
-import pandas
-import re
 from flask_sqlalchemy import SQLAlchemy
 
-
+# app settings
 app = Flask(__name__)
 app.debug = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres@localhost/flask'
-config_per_page = 20
+config_pp = 20
 db = SQLAlchemy(app)
 
+# instantiate database model for orders_cleaned table
 class Orders(db.Model):
 
     __tablename__ = 'orders_cleaned'
@@ -33,23 +33,30 @@ class Orders(db.Model):
     product_name = db.Column('product_name', db.Text)
     product_container = db.Column('product_container', db.Text)
 
+# default route will redirect to orders page 1
 @app.route('/')
 def home():
     return redirect(url_for('index', page_num = 1))
 
+# order route shows orders paginated
 @app.route('/order/<int:page_num>')
 
 def index(page_num):
 
-    orders = Orders.query.order_by(Orders.order_id).paginate(page = page_num, per_page = config_per_page, error_out = True)
+    orders = Orders.query.\
+    order_by(Orders.order_id).\
+    paginate(page = page_num, per_page = config_pp, error_out = True)
 
     return render_template('index.html', orders = orders)
 
+# search route?
+
+
+
+
 #
 '''
-QUERYING
-
-contains:
-      Model.query.filter(Model.columnName.contains('sub_string'))
-      orders = Orders.query.filter(Orders.customer_name.ilike('H%%')).paginate(1,8,False).items
+QUERYING EXAMPLES
+- Model.query.filter(Model.columnName.contains('sub_string'))
+- orders = Orders.query.filter(Orders.customer_name.ilike('H%%')).paginate(1,8,False).items
 '''
