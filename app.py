@@ -1,10 +1,11 @@
 #imports
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request, session
 from flask_sqlalchemy import SQLAlchemy
 
 # app settings
 app = Flask(__name__)
 app.debug = True
+app.config['SECRET_KEY'] = 'asfkjhalsiuh34jqthluih4gliu3qg4vlkqh3b'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres@localhost/flask'
 config_pp = 20
@@ -35,21 +36,41 @@ class Orders(db.Model):
 
 # default route will redirect to orders page 1
 @app.route('/')
-def home():
-    return redirect(url_for('index', page_num = 1))
+def reroute():
+    session['search_term'] = ''
+    return redirect(url_for('home', page_num = 1))
 
 # order route shows orders paginated
-@app.route('/order/<int:page_num>')
+@app.route('/order/<int:page_num>', methods = ['POST','GET'])
 
-def index(page_num):
+def home(page_num):
 
-    orders = Orders.query.\
-    order_by(Orders.order_id).\
-    paginate(page = page_num, per_page = config_pp, error_out = True)
+    # IF SEARCH BUTTON IS PRESSED
+    if request.method == 'POST' and len(request.form['search']) > 0:
+        session['search_term'] = request.form['search']
+        orders = Orders.query\
+        .filter(Orders.region.ilike('%{}%'.format(session['search_term'])))\
+        .order_by(Orders.order_id)\
+        .paginate(page = page_num, per_page = config_pp, error_out = True)
 
-    return render_template('index.html', orders = orders)
+        return render_template('home.html', orders = orders)
 
-# search route?
+    # IF SEARCH BUTTON IS NOT PRESS, RETAIN SEARCH
+    elif request.method == 'GET' and len(session['search_term']) > 0:
+        orders = Orders.query\
+        .filter(Orders.region.ilike('%{}%'.format(session['search_term'])))\
+        .order_by(Orders.order_id)\
+        .paginate(page = page_num, per_page = config_pp, error_out = True)
+
+        return render_template('home.html', orders = orders)
+
+    # IF SEARCH BUTTON IS NOT PRESSED AND SEARCH IS EMPTY
+    else:
+        orders = Orders.query.\
+        order_by(Orders.order_id).\
+        paginate(page = page_num, per_page = config_pp, error_out = True)
+
+        return render_template('home.html', orders = orders)
 
 
 

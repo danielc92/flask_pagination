@@ -11,17 +11,21 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-light bg-light justify-content-between">
-        <a class="text-info navbar-brand">Navbar</a>
-        <form class="form-inline" method = "post">
-            <input class = "search-input mx-3" type="text" name="search" placeholder = "Search" value="{{
-              request.form.search }}">
-            <button class="btn btn-outline-info my-2 my-sm-0" type="submit">Search</button>
-        </form>
-    </nav>
+    <div class = "bg-light">
+        <div class="container navbar navbar-light bg-transparent justify-content-between">
+            <a class="text-info navbar-brand" href= "{{ url_for('reroute') }}">Home</a>
+            <form class="form-inline" method = "post">
+                <input class = "search-input mx-3 py-1" type="text" name="search" placeholder = " Search..." value="{{
+                  request.form.search }}">
+                <button class="btn btn-outline-info my-2 my-sm-0" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+
+
     <div class="bg-info">
         <div class="container jumbotron jumbotron-fluid bg-transparent text-white">
-            <h1 class="display-4">Pagination Example</h1>
+            <h1 class="display-5">Pagination Example</h1>
         </div>
     </div>
     <div class="container">
@@ -57,10 +61,10 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <div class = "text-center">
+            <div class = "text-center my-5">
             {% for page in orders.iter_pages(left_edge = 2, right_edge = 2, left_current = 2, right_current=2) %}
                 {% if page %}
-                    <a class = "text-small btn btn-info py-1 px-3" role = "button" href="{{ url_for('index', page_num = page) }}">{{ page }}</a>
+                    <a class = "btn btn-outline-info py-1 px-3" role = "button" href="{{ url_for('home', page_num = page) }}">{{ page }}</a>
                 {% else %}
                 ...
                 {% endif %}
