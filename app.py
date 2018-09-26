@@ -7,7 +7,7 @@ app = Flask(__name__)
 app.debug = True
 app.config['SECRET_KEY'] = 'asfkjhalsiuh34jqthluih4gliu3qg4vlkqh3b'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres@localhost/flask'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:12345@localhost/flask'
 config_pp = 20
 db = SQLAlchemy(app)
 
@@ -48,12 +48,14 @@ def home(page_num):
     # IF SEARCH BUTTON IS PRESSED
     if request.method == 'POST' and len(request.form['search']) > 0:
         session['search_term'] = request.form['search']
+        '''
         orders = Orders.query\
         .filter(Orders.region.ilike('%{}%'.format(session['search_term'])))\
         .order_by(Orders.order_id)\
         .paginate(page = page_num, per_page = config_pp, error_out = True)
-
-        return render_template('home.html', orders = orders)
+        '''        
+        return redirect(url_for('home', page_num = 1))
+        #return render_template('home.html', orders = orders)
 
     # IF SEARCH BUTTON IS NOT PRESS, RETAIN SEARCH
     elif request.method == 'GET' and len(session['search_term']) > 0:
