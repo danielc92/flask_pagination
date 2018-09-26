@@ -1,27 +1,55 @@
-from flask import Flask, render_template
-from flask_paginate import Pagination, get_page_args
+from flask import Flask, render_template, redirect, url_for
 import pandas
+import re
+from flask_sqlalchemy import SQLAlchemy
+
 
 app = Flask(__name__)
 app.debug = True
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres@localhost/flask'
+config_per_page = 20
+db = SQLAlchemy(app)
 
-data = pandas.read_csv('static/superstore.csv')
-data_dict = data.to_dict(orient = 'records')
+class Orders(db.Model):
 
-def get_users(offset=0, per_page=20):
-    return data_dict[offset: offset + per_page]
+    __tablename__ = 'orders_cleaned'
+    
+    row_id = db.Column('row_id', db.Integer, primary_key = True)
+    order_id = db.Column('order_id', db.Integer)
+    order_date = db.Column('order_date', db.Text)
+    order_priority = db.Column('order_priority', db.Text)
+    order_quantity = db.Column('order_quantity', db.Integer)
+    sales = db.Column('sales', db.Float)
+    ship_mode = db.Column('ship_mode', db.Text)
+    profit = db.Column('profit', db.Float)
+    unit_price = db.Column('unit_price', db.Float)
+    customer_name = db.Column('customer_name', db.Text)
+    province = db.Column('province', db.Text)
+    region = db.Column('region', db.Text)
+    customer_segment = db.Column('customer_segment', db.Text)
+    product_category = db.Column('product_category', db.Text)
+    product_sub_category= db.Column('product_sub_category', db.Text)
+    product_name = db.Column('product_name', db.Text)
+    product_container = db.Column('product_container', db.Text)
 
 @app.route('/')
-def index():
+def home():
+    return redirect(url_for('index', page_num = 1))
 
-    page, per_page, offset = get_page_args(page_parameter='page', per_page_parameter='per_page')
-    total = len(data_dict)
-    pagination_users = get_users(offset=offset, per_page=per_page)
-    pagination = Pagination(page=page, per_page=per_page, total=total,
-                            css_framework='bootstrap4')
+@app.route('/order/<int:page_num>')
 
-    return render_template('index.html',
-                           data=pagination_users,
-                           page=page,
-                           per_page=per_page,
-                           pagination=pagination)
+def index(page_num):
+
+    orders = Orders.query.order_by(Orders.order_id).paginate(page = page_num, per_page = config_per_page, error_out = True)
+
+    return render_template('index.html', orders = orders)
+
+#
+'''
+QUERYING
+
+contains:
+      Model.query.filter(Model.columnName.contains('sub_string'))
+      orders = Orders.query.filter(Orders.customer_name.ilike('H%%')).paginate(1,8,False).items
+'''
