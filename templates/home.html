@@ -23,11 +23,20 @@
     </div>
 
 
-    <div class="bg-info">
+    <div class="bg-info mb-0">
         <div class="container jumbotron jumbotron-fluid bg-transparent text-white">
-            <h1 class="display-5">Pagination Example</h1>
+            <h1 class="display-3">Pagination Example</h1>
+            <p class ="m-0">
+            {% if session['search_term']|length > 0 %}
+               Showing results for search <span class = "badge badge-light"
+               >'{{ session['search_term'] }}'</span>. Page {{ orders.page }}/{{ orders.total }}.
+            {% else %}
+                Showing all results. Page {{ orders.page }}/{{ orders.total }}
+            {% endif %}
+        </p>
         </div>
     </div>
+
     <div class="container">
         <div class="table-responsive">
             <h2>Orders Table</h2>

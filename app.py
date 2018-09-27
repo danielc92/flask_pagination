@@ -41,38 +41,39 @@ def reroute():
     return redirect(url_for('home', page_num = 1))
 
 # order route shows orders paginated
-@app.route('/order/<int:page_num>', methods = ['POST','GET'])
+@app.route('/orders/<int:page_num>', methods = ['POST','GET'])
 
 def home(page_num):
 
-    # IF SEARCH BUTTON IS PRESSED
+    # IF SEARCH BUTTON IS PRESSED STORE SEARCH TERM IN SESSION AND REDIRECT
     if request.method == 'POST' and len(request.form['search']) > 0:
-        session['search_term'] = request.form['search']
-        '''
-        orders = Orders.query\
-        .filter(Orders.region.ilike('%{}%'.format(session['search_term'])))\
-        .order_by(Orders.order_id)\
-        .paginate(page = page_num, per_page = config_pp, error_out = True)
-        '''        
+
+        session['search_term'] = request.form['search']  
         return redirect(url_for('home', page_num = 1))
-        #return render_template('home.html', orders = orders)
 
     # IF SEARCH BUTTON IS NOT PRESS, RETAIN SEARCH
     elif request.method == 'GET' and len(session['search_term']) > 0:
+
         orders = Orders.query\
         .filter(Orders.region.ilike('%{}%'.format(session['search_term'])))\
         .order_by(Orders.order_id)\
         .paginate(page = page_num, per_page = config_pp, error_out = True)
-
-        return render_template('home.html', orders = orders)
+        print(orders.total)
+        return render_template('home.html', orders = orders, session = session)
 
     # IF SEARCH BUTTON IS NOT PRESSED AND SEARCH IS EMPTY
     else:
+
         orders = Orders.query.\
         order_by(Orders.order_id).\
         paginate(page = page_num, per_page = config_pp, error_out = True)
+        print(orders.total)
+        return render_template('home.html', orders = orders, session = session)
 
-        return render_template('home.html', orders = orders)
+
+
+
+
 
 
 
