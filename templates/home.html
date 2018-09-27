@@ -29,7 +29,7 @@
             <p class ="m-0">
             {% if session['search_term']|length > 0 %}
                Showing results for search <span class = "badge badge-light"
-               >'{{ session['search_term'] }}'</span>. Page {{ orders.page }}/{{ orders.total }}.
+               >{{ session['search_term'] }}</span>. Page {{ orders.page }}/{{ orders.total }}.
             {% else %}
                 Showing all results. Page {{ orders.page }}/{{ orders.total }}
             {% endif %}

@@ -48,12 +48,14 @@ def home(page_num):
 
     # IF SEARCH BUTTON IS PRESSED STORE SEARCH TERM IN SESSION AND REDIRECT
     if request.method == 'POST' and len(request.form['search']) > 0:
-        session['search_term'] = request.form['search'].split(' ') 
+        
+        session["search_raw"] = request.form['search']
+        session['search_term'] = request.form['search'].split(' ')
         return redirect(url_for('home', page_num = 1))
 
     # IF SEARCH BUTTON IS NOT PRESS, RETAIN SEARCH
     elif request.method == 'GET' and len(session['search_term']) > 0:
-
+        
         conditions = []
         for name in session['search_term']:
             conditions.append(Orders.customer_name.ilike('%{}%'.format(name)))
@@ -65,12 +67,36 @@ def home(page_num):
 
     # IF SEARCH BUTTON IS NOT PRESSED AND SEARCH IS EMPTY
     else:
-
+        session['search_raw'] = ''
+        session['search_term'] = []
         orders = Orders.query.\
         order_by(Orders.order_id).\
         paginate(page = page_num, per_page = config_pp, error_out = True)
         print(orders.total)
         return render_template('home.html', orders = orders, session = session)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
