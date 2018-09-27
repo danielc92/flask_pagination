@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>flask-bootstrap example</title>
+    <title>Pagination with flask-sqlalchemy</title>
     <!-- Bootstrap -->
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
@@ -25,7 +25,7 @@
 
     <div class="bg-info mb-0">
         <div class="container jumbotron jumbotron-fluid bg-transparent text-white">
-            <h1 class="display-3">Pagination Example</h1>
+            <h1 class="display-3">Pagination with flask-sqlalchemy.</h1>
             <p class ="m-0">
             {% if session['search_term']|length > 0 %}
                Showing results for search <span class = "badge badge-light"
@@ -71,6 +71,7 @@
                 </tbody>
             </table>
             <div class = "text-center my-5">
+            
             {% for page in orders.iter_pages(left_edge = 2, right_edge = 2, left_current = 2, right_current=2) %}
                 {% if page %}
                     <a class = "btn btn-outline-info py-1 px-3" role = "button" href="{{ url_for('home', page_num = page) }}">{{ page }}</a>
