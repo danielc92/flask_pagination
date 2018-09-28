@@ -9,7 +9,7 @@ app.debug = True
 app.config['SECRET_KEY'] = 'asfkjhalsiuh34jqthluih4gliu3qg4vlkqh3b'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:12345@localhost/flask'
-config_pp = 20
+pp = 20
 db = SQLAlchemy(app)
 
 # instantiate database model for orders_cleaned table
@@ -35,66 +35,40 @@ class Orders(db.Model):
     product_name = db.Column('product_name', db.Text)
     product_container = db.Column('product_container', db.Text)
 
-# default route will redirect to orders page 1
 @app.route('/')
-def reroute():
-    session['search_term'] = ''
-    return redirect(url_for('home', page_num = 1))
+def backtohome():
 
-# order route shows orders paginated
-@app.route('/orders/<int:page_num>', methods = ['POST','GET'])
+    return redirect(url_for('home', pn = 1))
 
-def home(page_num):
+@app.route('/orders/<int:pn>', methods = ['POST','GET'])
+def home(pn):
 
-    # IF SEARCH BUTTON IS PRESSED STORE SEARCH TERM IN SESSION AND REDIRECT
-    if request.method == 'POST' and len(request.form['search']) > 0:
-        
-        session["search_raw"] = request.form['search']
-        session['search_term'] = request.form['search'].split(' ')
-        return redirect(url_for('home', page_num = 1))
-
-    # IF SEARCH BUTTON IS NOT PRESS, RETAIN SEARCH
-    elif request.method == 'GET' and len(session['search_term']) > 0:
-        
-        conditions = []
-        for name in session['search_term']:
-            conditions.append(Orders.customer_name.ilike('%{}%'.format(name)))
-
-        orders = Orders.query.filter(or_(*conditions))\
-        .paginate(page = page_num, per_page = config_pp, error_out = True)
-        print(orders.total)
-        return render_template('home.html', orders = orders, session = session)
-
-    # IF SEARCH BUTTON IS NOT PRESSED AND SEARCH IS EMPTY
+    if request.method == 'POST':
+        s = request.form['search']
+        if len(s)>0:
+            return redirect(url_for('search', search = s, pn = 1))
+        else:
+            return redirect(url_for('backtohome'))
     else:
-        session['search_raw'] = ''
-        session['search_term'] = []
-        orders = Orders.query.\
-        order_by(Orders.order_id).\
-        paginate(page = page_num, per_page = config_pp, error_out = True)
-        print(orders.total)
-        return render_template('home.html', orders = orders, session = session)
+
+        orders = Orders.query.paginate(page = pn, per_page = pp, error_out = True)
+        return render_template('home.html', orders = orders)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+@app.route('/orders/<search>/<int:pn>', methods= ['POST','GET'])
+def search(search, pn):
+    
+    print("Entering search route.")
+    
+    if request.method == 'POST':
+        s = request.form['search']
+        orders = Orders.query.filter(Orders.region.contains(s)).paginate(page = 1,
+            per_page =pp, error_out = True)
+        return redirect(url_for('search', search = s, pn = 1))
+    else:
+        orders = Orders.query.filter(Orders.region.contains(search)).paginate(page = pn, per_page = pp, error_out = True)
+        return render_template('home.html', orders = orders, search_flag = search)
 
 
 
@@ -116,13 +90,13 @@ QUERYING EXAMPLES
 from sqlalchemy import or_
 
 conditions = []
-for name in names:
-    conditions.append(Detail.sellers.ilike('%{}%'.format(name)))
+        for name in session['search_term']:
+            conditions.append(Orders.customer_name.ilike('%{}%'.format(name)))
 
-q = session.query(Detail).filter(
-    or_(*conditions)
-)
-
+        orders = Orders.query.filter(or_(*conditions))\
+        .paginate(page = page_num, per_page = config_pp, error_out = True)
+        print(orders.total)
+        return render_template('home.html', orders = orders, session = session)
 
 
 '''

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Pagination with flask-sqlalchemy</title>
+    <title>Pagination with flask-sqlalchemy {{ search_flag }}</title>
     <!-- Bootstrap -->
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
@@ -13,7 +13,7 @@
 <body>
     <div class = "bg-light">
         <div class="container navbar navbar-light bg-transparent justify-content-between">
-            <a class="text-info navbar-brand" href= "{{ url_for('reroute') }}">Home</a>
+            <a class="text-info navbar-brand" href= "{{ url_for('backtohome') }}">Home</a>
             <form class="form-inline" method = "post">
                 <input class = "search-input mx-3 py-1" type="text" name="search" placeholder = " Search..." value="{{
                   request.form.search }}">
@@ -71,14 +71,23 @@
                 </tbody>
             </table>
             <div class = "text-center my-5">
-            
-            {% for page in orders.iter_pages(left_edge = 2, right_edge = 2, left_current = 2, right_current=2) %}
+            {% if search_flag %}
+                {% for page in orders.iter_pages(left_edge = 2, right_edge = 2, left_current = 2, right_current=2) %}
                 {% if page %}
-                    <a class = "btn btn-outline-info py-1 px-3" role = "button" href="{{ url_for('home', page_num = page) }}">{{ page }}</a>
+                    <a class = "btn btn-outline-info py-1 px-3" role = "button" href="{{ url_for('search', pn = page, search = search_flag) }}">{{ page }}</a>
                 {% else %}
                 ...
                 {% endif %}
-            {% endfor %}
+                {% endfor %}
+            {% else %}
+                {% for page in orders.iter_pages(left_edge = 2, right_edge = 2, left_current = 2, right_current=2) %}
+                {% if page %}
+                    <a class = "btn btn-outline-info py-1 px-3" role = "button" href="{{ url_for('home', pn = page) }}">{{ page }}</a>
+                {% else %}
+                ...
+                {% endif %}
+                {% endfor %}
+            {% endif %}
 
         </div>
 
