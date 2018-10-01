@@ -8,7 +8,12 @@ app = Flask(__name__)
 app.debug = True
 app.config['SECRET_KEY'] = 'asfkjhalsiuh34jqthluih4gliu3qg4vlkqh3b'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:12345@localhost/flask'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///git_public/flask_pagination/tmp/superstore'
+
+
+
+'''The old postgres database'''
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:12345@localhost/flask'
 
 pp = 20
 db = SQLAlchemy(app)
@@ -16,7 +21,7 @@ db = SQLAlchemy(app)
 # Instantiate database model for orders_cleaned table
 class Orders(db.Model):
 
-    __tablename__ = 'orders_cleaned'
+    __tablename__ = 'orders_subset_cleaned'
     
     row_id = db.Column('row_id', db.Integer, primary_key = True)
     order_id = db.Column('order_id', db.Integer)
