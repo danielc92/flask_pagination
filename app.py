@@ -2,13 +2,17 @@
 from flask import Flask, render_template, redirect, url_for, request, session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_, and_
+import os
 
 # App settings
 app = Flask(__name__)
 app.debug = True
 app.config['SECRET_KEY'] = 'asfkjhalsiuh34jqthluih4gliu3qg4vlkqh3b'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///git_public/flask_pagination/tmp/superstore'
+#Note path to sqlite database must be ABSOLUTE
+current_directory = os.getcwd()
+database_path = '/tmp/superstore'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + current_directory + database_path
 
 
 
