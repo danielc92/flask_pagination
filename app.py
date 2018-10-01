@@ -41,7 +41,6 @@ class Orders(db.Model):
 def stripsearch(item):
 
     strip = item.strip()
-
     if len(strip) >0 and len(strip) < 100:
         return True
     else:
@@ -83,7 +82,6 @@ def home(pn):
         return render_template('home.html', orders = orders)
 
 
-
 @app.route('/orders/<search>/<int:pn>', methods= ['POST','GET'])
 def search(search, pn):
     
@@ -94,10 +92,6 @@ def search(search, pn):
         s = request.form['search']
         
         if stripsearch(s):
-            search_terms = create_search_terms(s)
-            search_conditions = [Orders.customer_name.ilike('%{}%'.format(term)) for term in search_terms]
-            orders = Orders.query.filter(and_(*search_conditions)).paginate(page = 1, per_page =pp, error_out = True)
-
             return redirect(url_for('search', search = s, pn = 1))
         else:
             return redirect(url_for('backtohome'))
