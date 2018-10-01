@@ -3,16 +3,17 @@ from flask import Flask, render_template, redirect, url_for, request, session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_, and_
 
-# app settings
+# App settings
 app = Flask(__name__)
 app.debug = True
 app.config['SECRET_KEY'] = 'asfkjhalsiuh34jqthluih4gliu3qg4vlkqh3b'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:12345@localhost/flask'
+
 pp = 20
 db = SQLAlchemy(app)
 
-# instantiate database model for orders_cleaned table
+# Instantiate database model for orders_cleaned table
 class Orders(db.Model):
 
     __tablename__ = 'orders_cleaned'
@@ -35,6 +36,26 @@ class Orders(db.Model):
     product_name = db.Column('product_name', db.Text)
     product_container = db.Column('product_container', db.Text)
 
+# Searches must be above 0 chars and less than 100
+# Less than 100 chars reduces overhead when querying wildcard terms.
+def stripsearch(item):
+
+    strip = item.strip()
+
+    if len(strip) >0 and len(strip) < 100:
+        return True
+    else:
+        return False
+
+# Splits search into single items for wildcard searching
+def create_search_terms(search_result):
+    
+    terms = search_result.split(' ')
+    terms_stripped = list(map(str.strip, terms))
+    terms_final = [term for term in terms_stripped if term != '']
+    return terms_final
+
+# The default route, used when user clicks on home button, or searches an empty string
 @app.route('/')
 def backtohome():
 
@@ -43,12 +64,19 @@ def backtohome():
 @app.route('/orders/<int:pn>', methods = ['POST','GET'])
 def home(pn):
 
+    # If user presses search button
     if request.method == 'POST':
+
+        #Store form result
         s = request.form['search']
-        if len(s)>0:
+        
+        #Check if something is in search and redirect
+        if stripsearch(s):
             return redirect(url_for('search', search = s, pn = 1))
         else:
             return redirect(url_for('backtohome'))
+
+    # If user does not press search button
     else:
 
         orders = Orders.query.paginate(page = pn, per_page = pp, error_out = True)
@@ -62,12 +90,21 @@ def search(search, pn):
     print("Entering search route.")
     
     if request.method == 'POST':
+
         s = request.form['search']
-        orders = Orders.query.filter(Orders.region.contains(s)).paginate(page = 1,
-            per_page =pp, error_out = True)
-        return redirect(url_for('search', search = s, pn = 1))
+        
+        if stripsearch(s):
+            search_terms = create_search_terms(s)
+            search_conditions = [Orders.customer_name.ilike('%{}%'.format(term)) for term in search_terms]
+            orders = Orders.query.filter(and_(*search_conditions)).paginate(page = 1, per_page =pp, error_out = True)
+
+            return redirect(url_for('search', search = s, pn = 1))
+        else:
+            return redirect(url_for('backtohome'))
     else:
-        orders = Orders.query.filter(Orders.region.contains(search)).paginate(page = pn, per_page = pp, error_out = True)
+        search_terms = create_search_terms(search)
+        search_conditions = [Orders.customer_name.ilike('%{}%'.format(term)) for term in search_terms]
+        orders = Orders.query.filter(and_(*search_conditions)).paginate(page = pn, per_page =pp, error_out = True)
         return render_template('home.html', orders = orders, search_flag = search)
 
 
@@ -77,10 +114,6 @@ def search(search, pn):
 
 
 
-
-
-
-#
 '''
 QUERYING EXAMPLES
 - Model.query.filter(Model.columnName.contains('sub_string'))
@@ -97,6 +130,6 @@ conditions = []
         .paginate(page = page_num, per_page = config_pp, error_out = True)
         print(orders.total)
         return render_template('home.html', orders = orders, session = session)
-
-
 '''
+
+

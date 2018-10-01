@@ -15,7 +15,7 @@
         <div class="container navbar navbar-light bg-transparent justify-content-between">
             <a class="text-info navbar-brand" href= "{{ url_for('backtohome') }}">Home</a>
             <form class="form-inline" method = "post">
-                <input class = "search-input mx-3 py-1" type="text" name="search" placeholder = " Search..." value="{{
+                <input class = "search-input mx-3 py-1" type="text" name="search" placeholder = "Search..." value="{{
                   request.form.search }}">
                 <button class="btn btn-outline-info my-2 my-sm-0" type="submit">Search</button>
             </form>
@@ -27,12 +27,7 @@
         <div class="container jumbotron jumbotron-fluid bg-transparent text-white">
             <h1 class="display-3">Pagination with flask-sqlalchemy.</h1>
             <p class ="m-0">
-            {% if session['search_term']|length > 0 %}
-               Showing results for search <span class = "badge badge-light"
-               >{{ session['search_term'] }}</span>. Page {{ orders.page }}/{{ orders.total }}.
-            {% else %}
-                Showing all results. Page {{ orders.page }}/{{ orders.total }}
-            {% endif %}
+            Found {{ orders.total }} results. {{ orders.page }}/{{ orders.pages }}
         </p>
         </div>
     </div>
