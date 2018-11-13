@@ -9,3 +9,8 @@
 	width: 550px;
 	border-radius: 5px;
 }
+
+.container-custom {
+	padding-right: 100px;
+	padding-left: 100px;
+}

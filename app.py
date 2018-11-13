@@ -5,15 +5,15 @@ from sqlalchemy import or_, and_
 import os
 
 # App settings
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 app.debug = True
-app.config['SECRET_KEY'] = 'asfkjhalsiuh34jqthluih4gliu3qg4vlkqh3b'
+app.config['SECRET_KEY'] = 'topsecret!'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-#Note path to sqlite database must be ABSOLUTE
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['REMEMBER_COOKIE_SECURE'] = True
 current_directory = os.getcwd()
 database_path = '/tmp/superstore'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + current_directory + database_path
-
 
 
 '''The old postgres database'''

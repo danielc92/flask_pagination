@@ -2,17 +2,18 @@
 <html lang="en">
 
 <head>
+    <title>Pagination with flask-sqlalchemy {{ search_flag }}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Pagination with flask-sqlalchemy {{ search_flag }}</title>
-    <!-- Bootstrap -->
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'main.css') }}">
 </head>
+
+
 
 <body>
     <div class = "bg-light">
-        <div class="container navbar navbar-light bg-transparent justify-content-between">
+        <div class="container-custom navbar navbar-light bg-transparent justify-content-between">
             <a class="text-info navbar-brand" href= "{{ url_for('backtohome') }}">Home</a>
             <form class="form-inline" method = "post">
                 <input class = "search-input mx-3 py-1" type="text" name="search" placeholder = "Search..." value="{{
@@ -24,7 +25,7 @@
 
 
     <div class="bg-info mb-0">
-        <div class="container jumbotron jumbotron-fluid bg-transparent text-white">
+        <div class="container-custom jumbotron jumbotron-fluid bg-transparent text-white">
             <h1 class="display-3">Pagination with flask-sqlalchemy.</h1>
             <p class ="m-0">
             Found {{ orders.total }} results. {{ orders.page }}/{{ orders.pages }}
@@ -32,7 +33,7 @@
         </div>
     </div>
 
-    <div class="container">
+    <div class="container-custom">
         <div class="table-responsive">
             <h2>Orders Table</h2>
             <table class="table table-hover my-4">
@@ -65,30 +66,82 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <div class = "text-center my-5">
-            {% if search_flag %}
-                {% for page in orders.iter_pages(left_edge = 2, right_edge = 2, left_current = 2, right_current=2) %}
-                {% if page %}
-                    <a class = "btn btn-outline-info py-1 px-3" role = "button" href="{{ url_for('search', pn = page, search = search_flag) }}">{{ page }}</a>
-                {% else %}
-                ...
-                {% endif %}
-                {% endfor %}
-            {% else %}
-                {% for page in orders.iter_pages(left_edge = 2, right_edge = 2, left_current = 2, right_current=2) %}
-                {% if page %}
-                    <a class = "btn btn-outline-info py-1 px-3" role = "button" href="{{ url_for('home', pn = page) }}">{{ page }}</a>
-                {% else %}
-                ...
-                {% endif %}
-                {% endfor %}
-            {% endif %}
-
         </div>
-
-        </div>
-
     </div>
-</body>
 
+
+    <nav>
+        <ul class = "pagination" style="justify-content: center;">
+            {% if search_flag %}
+                <!-- Work out first page-->
+                {% if orders.page == 1%}
+                    <li class = "page-item disabled"><a class = "page-link">First</a></li>
+                {% else %}
+                    <li class = "page-item"><a class = "page-link" href="{{ url_for('search', pn = 1, search = search_flag) }}">First</a></li>
+                {% endif %}
+                 
+                <!-- Work out if previous exists-->
+                {% if orders.has_prev %}
+                    <li class = "page-item"><a class = "page-link" href="{{ url_for('search', pn = orders.prev_num, search = search_flag) }}">Previous</a></li>
+                {% else %}
+                    <li class = "page-item disabled"><a class = "page-link">Previous</a></li>
+                {% endif %}
+
+                <!-- Work out current page -->
+                    <li class = "page-item active"><a class = "page-link"><strong>{{ orders.page }}</strong></a></li>
+
+                <!-- Work out first exists-->
+                {% if orders.has_next %}
+                    <li class = "page-item"><a class = "page-link" href="{{ url_for('search', pn = orders.next_num, search = search_flag) }}">Next</a></li>
+                {% else %}
+                    <li class = "page-item disabled"><a class = "page-link">Next</a></li>
+                {% endif %}
+
+                <!-- Work out last page-->
+                    {% if orders.page == orders.pages%}
+                        <li class = "page-item disabled"><a class = "page-link">Last</a></li>
+                    {% else %}
+                        <li class = "page-item"><a class = "page-link" href="{{ url_for('search', pn = orders.pages, search = search_flag) }}">Last</a></li>
+                    {% endif %}
+            {% else %}
+                            <!-- Work out first page-->
+                {% if orders.page == 1%}
+                    <li class = "page-item disabled"><a class = "page-link">First</a></li>
+                {% else %}
+                    <li class = "page-item"><a class = "page-link" href="{{ url_for('home', pn = 1) }}">First</a></li>
+                {% endif %}
+                 
+
+                <!-- Work out if previous exists-->
+                {% if orders.has_prev %}
+                    <li class = "page-item"><a class = "page-link" href="{{ url_for('home', pn = orders.prev_num) }}">Previous</a></li>
+                {% else %}
+                    <li class = "page-item disabled"><a class = "page-link">Previous</a></li>
+                {% endif %}
+
+                <!-- Work out current page -->
+                    <li class = "page-item active"><a class = "page-link"><strong>{{ orders.page }}</strong></a></li>
+
+                <!-- Work out first exists-->
+                {% if orders.has_next %}
+                    <li class = "page-item"><a class = "page-link" href="{{ url_for('home', pn = orders.next_num) }}">Next</a></li>
+                {% else %}
+                    <li class = "page-item disabled"><a class = "page-link">Next</a></li>
+                {% endif %}
+
+                <!-- Work out last page-->
+                    {% if orders.page == orders.pages%}
+                        <li class = "page-item disabled"><a class = "page-link">Last</a></li>
+                    {% else %}
+                        <li class = "page-item"><a class = "page-link" href="{{ url_for('home', pn = orders.pages) }}">Last</a></li>
+                    {% endif %}
+
+            {% endif %}
+            
+        
+        </ul>
+    </nav>
+
+    <footer class = "bg-info py-4 text-center text-white">foot</footer>
+</body>
 </html>
