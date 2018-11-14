@@ -15,7 +15,7 @@
 <body>
     <div class = "bg-light">
         <div class="container-custom navbar navbar-light bg-transparent justify-content-between">
-            <a class="text-primary navbar-brand" href= "{{ url_for('home') }}">Home</a>
+            <a class="text-primary navbar-brand" href= "{{ url_for('home', pn=1) }}">Home</a>
             <form class="form-inline" method = "post">
                 <input class = "search-input mx-3 py-1" type="text" name="search" placeholder = "Search..." value="{{
                   request.form.search }}">

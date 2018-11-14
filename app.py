@@ -72,34 +72,40 @@ def return_page_int(pn):
     except:
         return 1
 
-def return_clean_search(search):
-    if len(search) > 100:
-        return ''
-    else:
-        return search
+def clean_search(raw_search):
 
+    if len(raw_search.strip())>0:
+        search = raw_search
+    else:
+        search = None
+
+    return search
+
+
+unfiltered_orders = orders=Orders.query.paginate(page=1, per_page =pp, error_out=True)
 @app.route('/orders/',methods=['POST','GET'])
-def home(pn = 1, search = ''):
+def home(pn = 1, search = None):
 
     pn_raw = request.args.get('pn', '1')
     pn = return_page_int(pn_raw)
 
-    search_raw =request.args.get('search', '')
-    search = return_clean_search(search_raw)
-
-
     if request.method == 'POST':
-
-        search=request.form['search']
-        print('stored search term, redirecting to home')
+        raw_search=request.form['search']
+        search = clean_search(raw_search)
         return redirect(url_for('home', search=search, pn=1))
 
     elif request.method == 'GET':
+        search = request.args.get('search', None)
+        if search:
+            terms = create_search_terms(search)
+            search_conditions=[Orders.customer_name.ilike('%{}%'.format(term)) for term in terms]
+            orders=Orders.query.filter(and_(*search_conditions)).paginate(page=pn, per_page =pp, error_out=True)
+        else:
+            orders=Orders.query.paginate(page=pn, per_page=pp, error_out=True)
         
-        terms = create_search_terms(search)
-        search_conditions=[Orders.customer_name.ilike('%{}%'.format(term)) for term in terms]
-        orders=Orders.query.filter(and_(*search_conditions)).paginate(page=pn, per_page =pp, error_out=True)
         return render_template('test.html', orders=orders, search=search)
+        
+        
 
 
 
