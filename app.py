@@ -68,6 +68,7 @@ def create_search_terms(search_result):
 def return_page_int(pn):
     try:
         int_pn = int(pn)
+        return int_pn
     except:
         return 1
 
