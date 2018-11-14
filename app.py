@@ -1,80 +1,81 @@
 """Imports."""
-from flask import Flask, render_template, redirect, url_for, request, session
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import or_, and_
+from flask import Flask, request, redirect, render_template, url_for
+
 import os
 
+from flask_sqlalchemy import SQLAlchemy
+
+from sqlalchemy import and_
+
+
 # App settings
-app=Flask(__name__, static_folder='static')
-app.debug=True
-app.config['SECRET_KEY']='topsecret!'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False
-app.config['SESSION_COOKIE_SECURE']=True
-app.config['REMEMBER_COOKIE_SECURE']=True
-current_directory=os.getcwd()
-database_path='/tmp/superstore'
-app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///' + current_directory + database_path
+app = Flask(__name__, static_folder='static')
+app.debug = True
+app.config['SECRET_KEY'] = 'topsecret!'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['REMEMBER_COOKIE_SECURE'] = True
+current_directory = os.getcwd()
+database_path = '/tmp/superstore'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
+    current_directory + database_path
 
 '''The old postgres database'''
-#app.config['SQLALCHEMY_DATABASE_URI']='postgresql://postgres:12345@localhost/flask'
+# app.config['SQLALCHEMY_DATABASE_URI']='postgresql://postgres:12345@localhost/flask'
 
-pp=20
-db=SQLAlchemy(app)
+pp = 20
+db = SQLAlchemy(app)
 
 # Instantiate database model for orders_cleaned table
+
+
 class Orders(db.Model):
+    """Maps to orders_subset_cleaned table in sqlite database."""
 
-    __tablename__='orders_subset_cleaned'
-    
-    row_id=db.Column('row_id', db.Integer, primary_key=True)
-    order_id=db.Column('order_id', db.Integer)
-    order_date=db.Column('order_date', db.Text)
-    order_priority=db.Column('order_priority', db.Text)
-    order_quantity=db.Column('order_quantity', db.Integer)
-    sales=db.Column('sales', db.Float)
-    ship_mode=db.Column('ship_mode', db.Text)
-    profit=db.Column('profit', db.Float)
-    unit_price=db.Column('unit_price', db.Float)
-    customer_name=db.Column('customer_name', db.Text)
-    province=db.Column('province', db.Text)
-    region=db.Column('region', db.Text)
-    customer_segment=db.Column('customer_segment', db.Text)
-    product_category=db.Column('product_category', db.Text)
-    product_sub_category= db.Column('product_sub_category', db.Text)
-    product_name=db.Column('product_name', db.Text)
-    product_container=db.Column('product_container', db.Text)
+    __tablename__ = 'orders_subset_cleaned'
 
-# Searches must be above 0 chars and less than 100
-# Less than 100 chars reduces overhead when querying wildcard terms.
-def stripsearch(item):
+    row_id = db.Column('row_id', db.Integer, primary_key=True)
+    order_id = db.Column('order_id', db.Integer)
+    order_date = db.Column('order_date', db.Text)
+    order_priority = db.Column('order_priority', db.Text)
+    order_quantity = db.Column('order_quantity', db.Integer)
+    sales = db.Column('sales', db.Float)
+    ship_mode = db.Column('ship_mode', db.Text)
+    profit = db.Column('profit', db.Float)
+    unit_price = db.Column('unit_price', db.Float)
+    customer_name = db.Column('customer_name', db.Text)
+    province = db.Column('province', db.Text)
+    region = db.Column('region', db.Text)
+    customer_segment = db.Column('customer_segment', db.Text)
+    product_category = db.Column('product_category', db.Text)
+    product_sub_category = db.Column('product_sub_category', db.Text)
+    product_name = db.Column('product_name', db.Text)
+    product_container = db.Column('product_container', db.Text)
 
-    strip=item.strip()
-    if len(strip) >0 and len(strip) < 100:
-        return True
-    else:
-        return False
 
-# Splits search into single items for wildcard searching
-def create_search_terms(search_result):
-
+def return_search_terms(search_result):
+    """Return search terms as a list from a search string object."""
     if search_result == '':
         return [search_result]
     else:
-        terms=search_result.split(' ')
-        terms_stripped=list(map(str.strip, terms))
-        terms_final=[term for term in terms_stripped if term != '']
+        terms = search_result.split(' ')
+        terms_stripped = list(map(str.strip, terms))
+        terms_final = [term for term in terms_stripped if term != '']
         return terms_final
 
+
 def return_page_int(pn):
+    """Return cleaned page number."""
     try:
         int_pn = int(pn)
         return int_pn
     except:
         return 1
 
-def clean_search(raw_search):
 
-    if len(raw_search.strip())>0:
+def clean_search(raw_search):
+    """Return cleaned search item."""
+    if len(raw_search.strip()) > 0:
         search = raw_search
     else:
         search = None
@@ -82,52 +83,36 @@ def clean_search(raw_search):
     return search
 
 
-unfiltered_orders = orders=Orders.query.paginate(page=1, per_page =pp, error_out=True)
-@app.route('/orders/',methods=['POST','GET'])
-def home(pn = 1, search = None):
+unfiltered_orders = orders = Orders.query.paginate(
+    page=1, per_page=pp, error_out=True)
 
+
+@app.route('/orders/', methods=['POST', 'GET'])
+def home(pn=1, search=None):
+    """The order route (also the home page)."""
     pn_raw = request.args.get('pn', '1')
     pn = return_page_int(pn_raw)
 
     if request.method == 'POST':
-        raw_search=request.form['search']
+        raw_search = request.form['search']
         search = clean_search(raw_search)
         return redirect(url_for('home', search=search, pn=1))
 
     elif request.method == 'GET':
         search = request.args.get('search', None)
         if search:
-            terms = create_search_terms(search)
-            search_conditions=[Orders.customer_name.ilike('%{}%'.format(term)) for term in terms]
-            orders=Orders.query.filter(and_(*search_conditions)).paginate(page=pn, per_page =pp, error_out=True)
+            terms = return_search_terms(search)
+            search_conditions = [Orders.customer_name.ilike(
+                '%{}%'.format(term)) for term in terms]
+            orders = Orders.query.filter(
+                and_(*search_conditions)).paginate(page=pn, per_page=pp, error_out=True)
         else:
-            orders=Orders.query.paginate(page=pn, per_page=pp, error_out=True)
-        
+            orders = Orders.query.paginate(
+                page=pn, per_page=pp, error_out=True)
+
         return render_template('test.html', orders=orders, search=search)
-        
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 '''
-
 QUERYING EXAMPLES
 - Model.query.filter(Model.columnName.contains('sub_string'))
 - orders=Orders.query.filter(Orders.customer_name.ilike('H%%')).paginate(1,8,False).items
