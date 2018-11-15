@@ -1,10 +1,7 @@
 """Imports."""
 from flask import Flask, request, redirect, render_template, url_for
-
 import os
-
 from flask_sqlalchemy import SQLAlchemy
-
 from sqlalchemy import and_
 
 
@@ -12,21 +9,18 @@ from sqlalchemy import and_
 app = Flask(__name__, static_folder='static')
 app.debug = True
 app.config['SECRET_KEY'] = 'topsecret!'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['REMEMBER_COOKIE_SECURE'] = True
-current_directory = os.getcwd()
-database_path = '/tmp/superstore'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
-    current_directory + database_path
 
-'''The old postgres database'''
-# app.config['SQLALCHEMY_DATABASE_URI']='postgresql://postgres:12345@localhost/flask'
-
-pp = 20
+# Db settings
+cur_dir = os.getcwd()
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db_path = '/tmp/superstore'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + cur_dir + db_path
 db = SQLAlchemy(app)
 
-# Instantiate database model for orders_cleaned table
+# Pagination setting
+pp = 20
 
 
 class Orders(db.Model):
@@ -83,10 +77,6 @@ def clean_search(raw_search):
     return search
 
 
-unfiltered_orders = orders = Orders.query.paginate(
-    page=1, per_page=pp, error_out=True)
-
-
 @app.route('/orders/', methods=['POST', 'GET'])
 def home(pn=1, search=None):
     """The order route (also the home page)."""
@@ -111,6 +101,7 @@ def home(pn=1, search=None):
                 page=pn, per_page=pp, error_out=True)
 
         return render_template('test.html', orders=orders, search=search)
+
 
 '''
 QUERYING EXAMPLES
