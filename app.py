@@ -47,22 +47,27 @@ class Orders(db.Model):
     product_container = db.Column('product_container', db.Text)
 
 
-def return_search_terms(search_result):
+def return_search_terms(search_string):
     """Return search terms as a list from a search string object."""
-    if search_result == '':
-        return [search_result]
+    if search_string == '':
+        return [search_string]
     else:
-        terms = search_result.split(' ')
+        terms = search_string.split(' ')
         terms_stripped = list(map(str.strip, terms))
-        terms_final = [term for term in terms_stripped if term != '']
-        return terms_final
+        search_list = [term for term in terms_stripped if term != '']
+        return search_list
+
+
+def return_search_conditions(search_list):
+    """Return list of search conditions using sqlalchemy."""
+    search_conditions = [Orders.customer_name.ilike('%{}%'.format(term)) for term in search_list]
+    return search_conditions
 
 
 def return_page_int(pn):
     """Return cleaned page number."""
     try:
-        int_pn = int(pn)
-        return int_pn
+        return int(pn)
     except:
         return 1
 
@@ -77,8 +82,8 @@ def clean_search(raw_search):
     return search
 
 
-@app.route('/orders/', methods=['POST', 'GET'])
-def home(pn=1, search=None):
+@app.route('/', methods=['POST', 'GET'])
+def home():
     """The order route (also the home page)."""
     pn_raw = request.args.get('pn', '1')
     pn = return_page_int(pn_raw)
@@ -88,17 +93,14 @@ def home(pn=1, search=None):
         search = clean_search(raw_search)
         return redirect(url_for('home', search=search, pn=1))
 
-    elif request.method == 'GET':
+    else:
         search = request.args.get('search', None)
         if search:
-            terms = return_search_terms(search)
-            search_conditions = [Orders.customer_name.ilike(
-                '%{}%'.format(term)) for term in terms]
-            orders = Orders.query.filter(
-                and_(*search_conditions)).paginate(page=pn, per_page=pp, error_out=True)
+            search_terms = return_search_terms(search)
+            search_conditions = return_search_conditions(search_terms)
+            orders = Orders.query.filter(and_(*search_conditions)).paginate(page=pn, per_page=pp, error_out=True)
         else:
-            orders = Orders.query.paginate(
-                page=pn, per_page=pp, error_out=True)
+            orders = Orders.query.paginate(page=pn, per_page=pp, error_out=True)
 
         return render_template('test.html', orders=orders, search=search)
 
