@@ -22,6 +22,10 @@ Install the following dependences:
 ```sh
 pip install requirements.txt
 ```
+**Running locally**
+```sh
+python3 main.py
+```
 
 # Tests
 - Hosted web application successfully on heroku platform
